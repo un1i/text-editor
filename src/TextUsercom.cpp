@@ -16,6 +16,38 @@ string TextUsercom::enter_string() {
 	return s;
 }
 
+string TextUsercom::enter_file_name() {
+	string file_name;
+	cout << "¬ведите название файла: ";
+	cin >> file_name;
+	return file_name;
+}
+
+void TextUsercom::save_text() {
+	system("CLS");
+	try {
+		string file_name = enter_file_name();
+		txt.write(file_name.c_str());
+		cout << "ƒанные успешно сохранены!\n";
+		Sleep(1000);
+	}
+	catch (exception e) {
+		cout << e.what() << endl;
+		Sleep(1000);
+	}
+}
+
+void TextUsercom::read_text() {
+	try {
+		string file_name = enter_file_name();
+		txt.read(file_name.c_str());
+	}
+	catch (exception e) {
+		cout << e.what() << endl;
+		Sleep(1000);
+	}
+}
+
 
 void TextUsercom::main_menu() {
 	string s;
@@ -26,10 +58,12 @@ void TextUsercom::main_menu() {
 	cin >> menu;
 	system("CLS");
 	if (menu == 1) {
-		string file_name;
-		cout << "¬ведите название файла: ";
-		cin >> file_name;
-		txt.read(file_name.c_str());
+		read_text();
+		if (txt.get_line() == "") {
+			string s;
+			s = enter_string();
+			txt.set_line(s);
+		}
 	}
 	else {
 		string s;
@@ -101,6 +135,10 @@ void TextUsercom::main_menu() {
 		}
 		case 'o': {
 			options();
+			break;
+		}
+		case 's': {
+			save_text();
 			break;
 		}
 		case 27: { // key "esc"
@@ -270,9 +308,14 @@ void TextUsercom::actions() {
 
 void TextUsercom::options() {
 	int menu;
+	system("CLS");
 	cout << "¬ведите 1, чтобы отобразить свободные звень€\n\
 ¬ведите 2, чтобы запустить сборщик мусора\n\
-¬ведите 3, чтобы изменить отображение текста\n";
+¬ведите 3, чтобы изменить отображение текста\n\
+¬ведите 4, чтобы удалить все строки\n\
+¬ведите 5, чтобы ввести текст из файла\n\
+¬ведите 6, чтобы сохранить текст в файл\n\
+¬ведите 0, чтобы вернутьс€ назад\n";
 	cin >> menu;
 	switch (menu) {
 	case 1: {
@@ -285,12 +328,30 @@ void TextUsercom::options() {
 	}
 	case 2: {
 		system("CLS");
-		TextLink::mem_cleaner(txt);
+		txt.run_garbage_collector();
 		break;
 	}
 	case 3: {
 		system("CLS");
 		display_sublevels = !display_sublevels;
+		break;
+	}
+	case 4: {
+		system("CLS");
+		txt.clear();
+		string s;
+		s = enter_string();
+		txt.set_line(s);
+		break;
+	}
+	case 5: {
+		system("CLS");
+		txt.clear();
+		read_text();
+		break;
+	}
+	case 6: {
+		save_text();
 		break;
 	}
 	default: {

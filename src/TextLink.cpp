@@ -45,7 +45,7 @@ void TextLink::operator delete(void* del_link) {
 }
 
 void TextLink::mem_cleaner(Text& txt) {
-	/*std::cout << "Очистка памяти\n";
+	/*std::cout << "Очистка памяти...\n";
 	Sleep(1000);*/
 	std::string st;
 	for (txt.reset(); !txt.is_ended(); txt.go_next()) {

@@ -18,14 +18,18 @@ Text*  Text::get_copy() {
 TextLink* Text::get_new_link(TextLink::Tstr str, TextLink* next, TextLink* down) {
 	TextLink* new_link = new TextLink(str, next, down);
 	if (new_link == NULL) {
-		TextLink* old_current = current;
-		TextLink::mem_cleaner(*this);
-		current = old_current;
+		run_garbage_collector();
 		new_link = new TextLink;
 		if (new_link == NULL)
 			throw std::exception("Память закочилась");
 	}
 	return new_link;
+}
+
+void Text::run_garbage_collector() {
+	TextLink* old_current = current;
+	TextLink::mem_cleaner(*this);
+	current = old_current;
 }
 
 int Text::go_first_link() {
@@ -223,7 +227,6 @@ void Text::print_sublevels(TextLink* link) {
 		print_tabs();
 		print_sublevels(link->down);
 		tab_counter--;
-		print_tabs();
 	}
 	if (link->next != NULL) {
 		print_tabs();
@@ -250,14 +253,19 @@ void Text::read(const char* file_name) {
 	std::ifstream file(file_name);
 	if (file.is_open()) {
 		delete first;
-		current = first = read_text(file);
+		current = NULL;
+		first = read_text(file);
+		if (current == NULL)
+			current = first;
+		file.close();
 	}
-	file.close();
+	else
+		throw std::exception("Неудалось открыть файл");
 }
 
 TextLink* Text::read_text(std::ifstream& file) {
 	TextLink* head, *cur;
-	head = cur = new TextLink;
+		head = cur = new TextLink;
 	if (head == NULL)
 		return NULL;
 
@@ -271,6 +279,8 @@ TextLink* Text::read_text(std::ifstream& file) {
 			cur->down = read_text(file);
 		else if (str[0] == '}')
 			break;
+		else if (strcmp(str, "&&&") == 0)
+			current = cur;
 		else {
 			cur->next = new TextLink(str);
 			if (cur->next == NULL)
@@ -281,4 +291,40 @@ TextLink* Text::read_text(std::ifstream& file) {
 	cur = head->next;
 	delete head;
 	return cur;
+}
+
+void Text::write(const char* file_name) {
+	std::ofstream file(file_name);
+	
+	if (file.is_open())
+		write_text(first, file);
+	else
+		throw std::exception("Неудалось открыть файл");
+	file.close();
+
+
+}
+
+void Text::write_text(TextLink* cur, std::ofstream& file) {
+	while (cur != NULL) {
+		if (cur != first)
+			file << '\n';
+		file << cur->str;
+		if (cur == current)
+			file << "\n&&&";
+
+		if (cur->down != NULL) {
+			file << "\n{";
+			write_text(cur->down, file);
+			file << "\n}";
+		}
+
+		cur = cur->next;
+	}
+}
+
+void Text::clear() {
+	first = NULL;
+	TextLink::mem_cleaner(*this);
+	first = current = get_new_link();
 }

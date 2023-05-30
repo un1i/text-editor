@@ -14,6 +14,7 @@ private:
 	void print_text(TextLink* link);
 	void print_sublevels(TextLink* link);
 	TextLink* read_text(std::ifstream& file);
+	void write_text(TextLink* cur, std::ofstream& file);
 	void print_tabs();
 public:
 	Text(TextLink* link = NULL);
@@ -42,7 +43,9 @@ public:
 	int go_next();
 
 	void read(const char* file_name);
-	void write(char* file_name);
+	void write(const char* file_name);
 
 	void print(bool display_sublevels = false);
+	void clear();
+	void run_garbage_collector();
 };

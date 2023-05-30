@@ -8,7 +8,7 @@ using namespace std;
 
 
 int main(){
-	TextLink::init_mem_system(5);
+	TextLink::init_mem_system();
 	setlocale(LC_ALL, "RUS");
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
